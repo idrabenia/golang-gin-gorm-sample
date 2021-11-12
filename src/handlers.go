@@ -60,6 +60,49 @@ func Handlers(db *gorm.DB, r *gin.Engine) {
 		}
 	})
 
+	r.PUT("/user/:id", func(context *gin.Context) {
+		id := context.Params.ByName("id")
+		idVal, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Println(err)
+			context.Writer.WriteHeader(404)
+			return
+		}
+
+		command := UpdateUserCommand{}
+
+		if err := context.ShouldBind(&command); err != nil {
+			log.Println(err)
+			context.Writer.WriteHeader(400)
+			return
+		}
+
+		if entity, err := userService.Update(idVal, &command); err == nil {
+			context.JSON(200, ToUser(entity))
+		} else {
+			log.Println("Error on update user ", err.Error())
+			context.Writer.WriteHeader(500)
+		}
+	})
+
+	r.DELETE("/user/:id", func(context *gin.Context) {
+		id := context.Params.ByName("id")
+		idVal, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Println(err)
+			context.Writer.WriteHeader(404)
+			return
+		}
+
+		if result := userService.Delete(idVal); result == nil {
+			context.Writer.WriteHeader(200)
+		} else {
+			context.Writer.WriteHeader(500)
+		}
+	})
+
 }
 
 func InitDb() *gorm.DB {
