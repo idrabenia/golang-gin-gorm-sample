@@ -14,21 +14,22 @@ func Handlers(db *gorm.DB, r *gin.Engine) {
 	userService := UserService{Db: db}
 
 	r.GET("/user/:id", func(context *gin.Context) {
-		id := context.Params.ByName("id")
-		idVal, err := strconv.Atoi(id)
+		id, err := ParseId(context)
 
 		if err != nil {
-			log.Println(err)
-			context.Writer.WriteHeader(404)
+			SendCode(context, 404)
 			return
 		}
 
-		entity, err := userService.FindById(idVal)
+		entity, err := userService.FindById(id)
 
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if err == nil {
 			context.JSON(200, ToUser(entity))
+		} else if errors.Is(err, gorm.ErrRecordNotFound) {
+			SendCode(context, 404)
 		} else {
-			context.Writer.WriteHeader(404)
+			log.Println("Error on find user", id, err)
+			SendCode(context, 500)
 		}
 	})
 
@@ -37,7 +38,7 @@ func Handlers(db *gorm.DB, r *gin.Engine) {
 			context.JSON(200, ToUserList(users))
 		} else {
 			log.Println("Error on get all users " + err.Error())
-			context.Writer.WriteHeader(500)
+			SendCode(context, 500)
 		}
 	})
 
@@ -46,7 +47,7 @@ func Handlers(db *gorm.DB, r *gin.Engine) {
 
 		if err := context.ShouldBind(&user); err != nil {
 			log.Println(err)
-			context.Writer.WriteHeader(400)
+			SendCode(context, 400)
 			return
 		}
 
@@ -56,17 +57,15 @@ func Handlers(db *gorm.DB, r *gin.Engine) {
 			context.JSON(200, ToUser(entity))
 		} else {
 			log.Println(err)
-			context.Writer.WriteHeader(500)
+			SendCode(context, 500)
 		}
 	})
 
 	r.PUT("/user/:id", func(context *gin.Context) {
-		id := context.Params.ByName("id")
-		idVal, err := strconv.Atoi(id)
+		id, err := ParseId(context)
 
 		if err != nil {
-			log.Println(err)
-			context.Writer.WriteHeader(404)
+			SendCode(context, 404)
 			return
 		}
 
@@ -74,35 +73,49 @@ func Handlers(db *gorm.DB, r *gin.Engine) {
 
 		if err := context.ShouldBind(&command); err != nil {
 			log.Println(err)
-			context.Writer.WriteHeader(400)
+			SendCode(context, 400)
 			return
 		}
 
-		if entity, err := userService.Update(idVal, &command); err == nil {
+		if entity, err := userService.Update(id, &command); err == nil {
 			context.JSON(200, ToUser(entity))
 		} else {
 			log.Println("Error on update user ", err.Error())
-			context.Writer.WriteHeader(500)
+			SendCode(context, 500)
 		}
 	})
 
 	r.DELETE("/user/:id", func(context *gin.Context) {
-		id := context.Params.ByName("id")
-		idVal, err := strconv.Atoi(id)
+		id, err := ParseId(context)
 
 		if err != nil {
-			log.Println(err)
-			context.Writer.WriteHeader(404)
+			SendCode(context, 404)
 			return
 		}
 
-		if result := userService.Delete(idVal); result == nil {
-			context.Writer.WriteHeader(200)
+		if result := userService.Delete(id); result == nil {
+			SendCode(context, 200)
 		} else {
-			context.Writer.WriteHeader(500)
+			SendCode(context, 500)
 		}
 	})
 
+}
+
+func SendCode(context *gin.Context, code int) {
+	context.Writer.WriteHeader(code)
+}
+
+func ParseId(context *gin.Context) (int, error) {
+	id := context.Params.ByName("id")
+	idVal, err := strconv.Atoi(id)
+
+	if err != nil {
+		log.Println("Could not parser user ID", err)
+		return idVal, err
+	} else {
+		return idVal, nil
+	}
 }
 
 func InitDb() *gorm.DB {
