@@ -32,6 +32,15 @@ func Handlers(db *gorm.DB, r *gin.Engine) {
 		}
 	})
 
+	r.GET("/user", func(context *gin.Context) {
+		if users, err := userService.FindAll(); err == nil {
+			context.JSON(200, ToUserList(users))
+		} else {
+			log.Println("Error on get all users " + err.Error())
+			context.Writer.WriteHeader(500)
+		}
+	})
+
 	r.POST("/user", func(context *gin.Context) {
 		user := User{}
 

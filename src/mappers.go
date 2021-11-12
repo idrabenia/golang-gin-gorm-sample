@@ -14,3 +14,13 @@ func ToUser(entity *UserEntity) *User {
 		LastName:  entity.LastName,
 	}
 }
+
+func ToUserList(entities []*UserEntity) []*User {
+	result := make([]*User, 0)
+
+	for _, entity := range entities {
+		result = append(result, ToUser(entity))
+	}
+
+	return result
+}

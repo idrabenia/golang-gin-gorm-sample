@@ -28,3 +28,15 @@ func (service *UserService) Create(entity *UserEntity) (*UserEntity, error) {
 		return nil, result.Error
 	}
 }
+
+func (service *UserService) FindAll() ([]*UserEntity, error) {
+	var users []*UserEntity
+
+	result := service.Db.Find(&users)
+
+	if result.Error == nil {
+		return users, nil
+	} else {
+		return nil, result.Error
+	}
+}
