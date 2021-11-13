@@ -9,97 +9,91 @@ import (
 	"strconv"
 )
 
-func Handlers(db *gorm.DB, r *gin.Engine) {
+func CreateUser(context *gin.Context, userService UserService) {
+	user := User{}
 
-	userService := UserService{Db: db}
+	if err := context.ShouldBind(&user); err != nil {
+		log.Println(err)
+		SendCode(context, 400)
+		return
+	}
 
-	r.GET("/user/:id", func(context *gin.Context) {
-		id, err := ParseId(context)
+	entity, err := userService.Create(ToUserEntity(&user))
 
-		if err != nil {
-			SendCode(context, 404)
-			return
-		}
+	if err == nil {
+		context.JSON(200, ToUser(entity))
+	} else {
+		log.Println(err)
+		SendCode(context, 500)
+	}
+}
 
-		entity, err := userService.FindById(id)
+func UpdateUser(context *gin.Context, userService UserService) {
+	id, err := ParseId(context)
 
-		if err == nil {
-			context.JSON(200, ToUser(entity))
-		} else if errors.Is(err, gorm.ErrRecordNotFound) {
-			SendCode(context, 404)
-		} else {
-			log.Println("Error on find user", id, err)
-			SendCode(context, 500)
-		}
-	})
+	if err != nil {
+		SendCode(context, 404)
+		return
+	}
 
-	r.GET("/user", func(context *gin.Context) {
-		if users, err := userService.FindAll(); err == nil {
-			context.JSON(200, ToUserList(users))
-		} else {
-			log.Println("Error on get all users " + err.Error())
-			SendCode(context, 500)
-		}
-	})
+	command := UpdateUserCommand{}
 
-	r.POST("/user", func(context *gin.Context) {
-		user := User{}
+	if err := context.ShouldBind(&command); err != nil {
+		log.Println(err)
+		SendCode(context, 400)
+		return
+	}
 
-		if err := context.ShouldBind(&user); err != nil {
-			log.Println(err)
-			SendCode(context, 400)
-			return
-		}
+	if entity, err := userService.Update(id, &command); err == nil {
+		context.JSON(200, ToUser(entity))
+	} else {
+		log.Println("Error on update user ", err.Error())
+		SendCode(context, 500)
+	}
+}
 
-		entity, err := userService.Create(ToUserEntity(&user))
+func DeleteUser(context *gin.Context, userService UserService) {
+	id, err := ParseId(context)
 
-		if err == nil {
-			context.JSON(200, ToUser(entity))
-		} else {
-			log.Println(err)
-			SendCode(context, 500)
-		}
-	})
+	if err != nil {
+		SendCode(context, 404)
+		return
+	}
 
-	r.PUT("/user/:id", func(context *gin.Context) {
-		id, err := ParseId(context)
+	if result := userService.Delete(id); result == nil {
+		SendCode(context, 200)
+	} else {
+		SendCode(context, 500)
+	}
+}
 
-		if err != nil {
-			SendCode(context, 404)
-			return
-		}
+func GetUser(context *gin.Context, userService UserService) {
+	id, err := ParseId(context)
 
-		command := UpdateUserCommand{}
+	if err != nil {
+		SendCode(context, 404)
+		return
+	}
 
-		if err := context.ShouldBind(&command); err != nil {
-			log.Println(err)
-			SendCode(context, 400)
-			return
-		}
+	entity, err := userService.FindById(id)
 
-		if entity, err := userService.Update(id, &command); err == nil {
-			context.JSON(200, ToUser(entity))
-		} else {
-			log.Println("Error on update user ", err.Error())
-			SendCode(context, 500)
-		}
-	})
+	if err == nil {
+		context.JSON(200, ToUser(entity))
+	} else if errors.Is(err, gorm.ErrRecordNotFound) {
+		SendCode(context, 404)
+	} else {
+		log.Println("Error on find user", id, err)
+		SendCode(context, 500)
+	}
+}
 
-	r.DELETE("/user/:id", func(context *gin.Context) {
-		id, err := ParseId(context)
-
-		if err != nil {
-			SendCode(context, 404)
-			return
-		}
-
-		if result := userService.Delete(id); result == nil {
-			SendCode(context, 200)
-		} else {
-			SendCode(context, 500)
-		}
-	})
-
+func FindAllUsers(context *gin.Context, userService UserService) {
+	if users, err := userService.FindAll(); err == nil {
+		context.JSON(200, ToUserList(users))
+	} else {
+		log.Println("Error on get all users " + err.Error())
+		SendCode(context, 500)
+	}
 }
 
 func SendCode(context *gin.Context, code int) {
@@ -128,4 +122,30 @@ func InitDb() *gorm.DB {
 	db.AutoMigrate(&UserEntity{})
 
 	return db
+}
+
+func Handlers(db *gorm.DB, r *gin.Engine) {
+
+	userService := UserService{Db: db}
+
+	r.GET("/user/:id", func(context *gin.Context) {
+		GetUser(context, userService)
+	})
+
+	r.GET("/user", func(context *gin.Context) {
+		FindAllUsers(context, userService)
+	})
+
+	r.POST("/user", func(context *gin.Context) {
+		CreateUser(context, userService)
+	})
+
+	r.PUT("/user/:id", func(context *gin.Context) {
+		UpdateUser(context, userService)
+	})
+
+	r.DELETE("/user/:id", func(context *gin.Context) {
+		DeleteUser(context, userService)
+	})
+
 }
