@@ -41,8 +41,8 @@ func (m *UserServiceMock) Delete(id int) error {
 }
 
 func TestFindAllUsers(t *testing.T) {
+	context := makeContext()
 	service := mockUserService(new(UserServiceMock))
-	context, _ := gin.CreateTestContext(httptest.NewRecorder())
 
 	FindAllUsers(context, service)
 
@@ -52,8 +52,8 @@ func TestFindAllUsers(t *testing.T) {
 
 func TestProcessFindById(t *testing.T) {
 	service := mockUserService(new(UserServiceMock))
-	context, _ := gin.CreateTestContext(httptest.NewRecorder())
-	context.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	context := makeContext()
+	context.Params = mockParams("id", "1")
 
 	GetUser(context, service)
 
@@ -63,8 +63,7 @@ func TestProcessFindById(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	service := mockUserService(new(UserServiceMock))
-	context, _ := gin.CreateTestContext(httptest.NewRecorder())
-	mockCreateAndUpdate(context)
+	context := mockCreateAndUpdate(makeContext())
 
 	CreateUser(context, service)
 
@@ -74,9 +73,8 @@ func TestCreateUser(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	service := mockUserService(new(UserServiceMock))
-	context, _ := gin.CreateTestContext(httptest.NewRecorder())
-	context.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
-	mockCreateAndUpdate(context)
+	context := mockCreateAndUpdate(makeContext())
+	context.Params = mockParams("id", "1")
 
 	UpdateUser(context, service)
 
@@ -86,20 +84,37 @@ func TestUpdateUser(t *testing.T) {
 
 func TestDeleteById(t *testing.T) {
 	service := mockUserService(new(UserServiceMock))
-	context, _ := gin.CreateTestContext(httptest.NewRecorder())
-	context.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
+	context := makeContext()
+	context.Params = mockParams("id", "1")
 
 	DeleteUser(context, service)
 
 	service.AssertCalled(t, "Delete", 1)
 }
 
-func mockCreateAndUpdate(context *gin.Context) {
+func mockParams(key string, value string) gin.Params {
+	return gin.Params{
+		gin.Param{
+			Key:   key,
+			Value: value,
+		},
+	}
+}
+
+func makeContext() *gin.Context {
+	context, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	return context
+}
+
+func mockCreateAndUpdate(context *gin.Context) *gin.Context {
 	context.Request = &http.Request{Header: http.Header{}}
 	context.Request.Header.Set("Content-Type", "application/json")
 
 	payload := []byte(`{"FirstName": "First", "LastName": "Last"}`)
 	context.Request.Body = io.NopCloser(bytes.NewBuffer(payload))
+
+	return context
 }
 
 func mockUserService(service *UserServiceMock) *UserServiceMock {
