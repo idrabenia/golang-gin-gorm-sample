@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
 	"strconv"
@@ -110,18 +109,6 @@ func ParseId(context *gin.Context) (int, error) {
 	} else {
 		return idVal, nil
 	}
-}
-
-func InitDb() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
-
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	db.AutoMigrate(&UserEntity{})
-
-	return db
 }
 
 func Handlers(db *gorm.DB, r *gin.Engine) {
