@@ -4,8 +4,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type GormDb interface {
+	First(dest interface{}, conds ...interface{}) (tx *gorm.DB)
+	Create(value interface{}) (tx *gorm.DB)
+	Updates(values interface{}) (tx *gorm.DB)
+	Delete(value interface{}, conds ...interface{}) (tx *gorm.DB)
+	Find(dest interface{}, conds ...interface{}) (tx *gorm.DB)
+}
+
 type UserService struct {
-	Db *gorm.DB
+	Db GormDb
 }
 
 func (service *UserService) FindById(id int) (*UserEntity, error) {
