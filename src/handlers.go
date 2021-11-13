@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func CreateUser(context *gin.Context, userService UserService) {
+func CreateUser(context *gin.Context, userService UserServiceType) {
 	user := User{}
 
 	if err := context.ShouldBind(&user); err != nil {
@@ -28,7 +28,7 @@ func CreateUser(context *gin.Context, userService UserService) {
 	}
 }
 
-func UpdateUser(context *gin.Context, userService UserService) {
+func UpdateUser(context *gin.Context, userService UserServiceType) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -52,7 +52,7 @@ func UpdateUser(context *gin.Context, userService UserService) {
 	}
 }
 
-func DeleteUser(context *gin.Context, userService UserService) {
+func DeleteUser(context *gin.Context, userService UserServiceType) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func DeleteUser(context *gin.Context, userService UserService) {
 	}
 }
 
-func GetUser(context *gin.Context, userService UserService) {
+func GetUser(context *gin.Context, userService UserServiceType) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -87,7 +87,7 @@ func GetUser(context *gin.Context, userService UserService) {
 	}
 }
 
-func FindAllUsers(context *gin.Context, userService UserService) {
+func FindAllUsers(context *gin.Context, userService UserServiceType) {
 	if users, err := userService.FindAll(); err == nil {
 		context.JSON(200, ToUserList(users))
 	} else {
@@ -126,7 +126,7 @@ func InitDb() *gorm.DB {
 
 func Handlers(db *gorm.DB, r *gin.Engine) {
 
-	userService := UserService{Db: db}
+	userService := &UserService{Db: db}
 
 	r.GET("/user/:id", func(context *gin.Context) {
 		GetUser(context, userService)

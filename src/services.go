@@ -12,6 +12,14 @@ type GormDb interface {
 	Find(dest interface{}, conds ...interface{}) (tx *gorm.DB)
 }
 
+type UserServiceType interface {
+	FindById(id int) (*UserEntity, error)
+	Create(entity *UserEntity) (*UserEntity, error)
+	FindAll() ([]*UserEntity, error)
+	Update(id int, command *UpdateUserCommand) (*UserEntity, error)
+	Delete(id int) error
+}
+
 type UserService struct {
 	Db GormDb
 }
