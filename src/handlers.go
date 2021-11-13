@@ -111,7 +111,7 @@ func ParseId(context *gin.Context) (int, error) {
 	}
 }
 
-func Handlers(db *gorm.DB, r *gin.Engine) {
+func Handlers(db GormDb, r *gin.Engine) {
 
 	userService := &UserService{Db: db}
 
