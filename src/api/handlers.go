@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	infdb "example/hello/src/inf/gorm"
 	"example/hello/src/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -113,10 +112,7 @@ func ParseId(context *gin.Context) (int, error) {
 	}
 }
 
-func Handlers(db infdb.DbGorm, r *gin.Engine) {
-
-	userRepo := &infdb.UserRepoImpl{Db: db}
-	userService := &services.UserServiceImpl{UserRepo: userRepo}
+func Handlers(r *gin.Engine, userService services.UserService) {
 
 	r.GET("/user/:id", func(context *gin.Context) {
 		GetUser(context, userService)

@@ -2,6 +2,12 @@ package services
 
 import (
 	"example/hello/src/model"
+	"github.com/google/wire"
+)
+
+var ServiceSet = wire.NewSet(
+	NewUserService,
+	wire.Bind(new(UserService), new(*UserServiceImpl)),
 )
 
 type UserService interface {
@@ -18,6 +24,10 @@ type UserService interface {
 
 type UserServiceImpl struct {
 	UserRepo model.UserRepo
+}
+
+func NewUserService(repo model.UserRepo) *UserServiceImpl {
+	return &UserServiceImpl{UserRepo: repo}
 }
 
 func (s *UserServiceImpl) FindById(id int) (*model.UserEntity, error) {

@@ -1,9 +1,22 @@
 package gorm
 
-import "example/hello/src/model"
+import (
+	"example/hello/src/model"
+	"github.com/google/wire"
+	"gorm.io/gorm"
+)
+
+var RepoSet = wire.NewSet(
+	NewUserRepo,
+	wire.Bind(new(model.UserRepo), new(*UserRepoImpl)),
+)
 
 type UserRepoImpl struct {
 	Db DbGorm
+}
+
+func NewUserRepo(db *gorm.DB) *UserRepoImpl {
+	return &UserRepoImpl{Db: db}
 }
 
 func (u *UserRepoImpl) FindById(id int) (*model.UserEntity, error) {
