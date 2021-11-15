@@ -1,19 +1,23 @@
-package main
+package services
+
+import (
+	"example/hello/src/model"
+)
 
 type UserServiceType interface {
-	FindById(id int) (*UserEntity, error)
-	Create(entity *UserEntity) (*UserEntity, error)
-	FindAll() ([]*UserEntity, error)
-	Update(id int, command *UpdateUserCommand) (*UserEntity, error)
+	FindById(id int) (*model.UserEntity, error)
+	Create(entity *model.UserEntity) (*model.UserEntity, error)
+	FindAll() ([]*model.UserEntity, error)
+	Update(id int, command *model.UpdateUserCommand) (*model.UserEntity, error)
 	Delete(id int) error
 }
 
 type UserService struct {
-	Db GormDb
+	Db model.GormDb
 }
 
-func (service *UserService) FindById(id int) (*UserEntity, error) {
-	entity := UserEntity{}
+func (service *UserService) FindById(id int) (*model.UserEntity, error) {
+	entity := model.UserEntity{}
 	result := service.Db.First(&entity, id)
 
 	if result.Error == nil {
@@ -23,7 +27,7 @@ func (service *UserService) FindById(id int) (*UserEntity, error) {
 	}
 }
 
-func (service *UserService) Create(entity *UserEntity) (*UserEntity, error) {
+func (service *UserService) Create(entity *model.UserEntity) (*model.UserEntity, error) {
 	result := service.Db.Create(&entity)
 
 	if result.Error == nil {
@@ -33,8 +37,8 @@ func (service *UserService) Create(entity *UserEntity) (*UserEntity, error) {
 	}
 }
 
-func (service *UserService) FindAll() ([]*UserEntity, error) {
-	var users []*UserEntity
+func (service *UserService) FindAll() ([]*model.UserEntity, error) {
+	var users []*model.UserEntity
 
 	result := service.Db.Find(&users)
 
@@ -45,7 +49,7 @@ func (service *UserService) FindAll() ([]*UserEntity, error) {
 	}
 }
 
-func (service *UserService) Update(id int, command *UpdateUserCommand) (*UserEntity, error) {
+func (service *UserService) Update(id int, command *model.UpdateUserCommand) (*model.UserEntity, error) {
 	if entity, err := service.FindById(id); err == nil {
 		entity.FirstName = command.FirstName
 		entity.LastName = command.LastName

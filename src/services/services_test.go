@@ -1,6 +1,8 @@
-package main
+package services
 
 import (
+	"example/hello/src/model"
+	"example/hello/src/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
@@ -34,7 +36,7 @@ func (db *DbMock) Find(dest interface{}, conds ...interface{}) (tx *gorm.DB) {
 func (db *DbMock) First(dest interface{}, conds ...interface{}) (tx *gorm.DB) {
 	db.Called(dest, conds)
 
-	item := dest.(*UserEntity)
+	item := dest.(*model.UserEntity)
 	item.ID = 1
 
 	return &gorm.DB{Error: nil}
@@ -53,7 +55,7 @@ func TestFindById(t *testing.T) {
 func TestCreate(t *testing.T) {
 	db := mockDb(new(DbMock))
 	service := UserService{Db: db}
-	entity := MakeUserEntity(1)
+	entity := test.MakeUserEntity(1)
 
 	result, err := service.Create(entity)
 
@@ -116,8 +118,8 @@ func mockDb(dbMock *DbMock) *DbMock {
 	return dbMock
 }
 
-func MakeUpdateCommand() *UpdateUserCommand {
-	return &UpdateUserCommand{
+func MakeUpdateCommand() *model.UpdateUserCommand {
+	return &model.UpdateUserCommand{
 		FirstName: "TestFirstName",
 		LastName:  "TestLastName",
 	}

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"example/hello/src/api"
+	"example/hello/src/model"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -10,7 +12,7 @@ func main() {
 	r := gin.Default()
 	db := InitDb()
 
-	Handlers(db, r)
+	api.Handlers(db, r)
 
 	r.Run(":8080")
 }
@@ -22,7 +24,7 @@ func InitDb() *gorm.DB {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&UserEntity{})
+	db.AutoMigrate(&model.UserEntity{})
 
 	return db
 }

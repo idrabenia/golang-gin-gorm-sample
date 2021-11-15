@@ -1,7 +1,9 @@
-package main
+package api
 
 import (
 	"bytes"
+	"example/hello/src/model"
+	"example/hello/src/test"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -15,24 +17,24 @@ type UserServiceMock struct {
 	mock.Mock
 }
 
-func (m *UserServiceMock) FindById(id int) (*UserEntity, error) {
+func (m *UserServiceMock) FindById(id int) (*model.UserEntity, error) {
 	m.Called(id)
-	return MakeUserEntity(1), nil
+	return test.MakeUserEntity(1), nil
 }
 
-func (m *UserServiceMock) Create(entity *UserEntity) (*UserEntity, error) {
+func (m *UserServiceMock) Create(entity *model.UserEntity) (*model.UserEntity, error) {
 	m.Called(entity)
-	return MakeUserEntity(1), nil
+	return test.MakeUserEntity(1), nil
 }
 
-func (m *UserServiceMock) FindAll() ([]*UserEntity, error) {
+func (m *UserServiceMock) FindAll() ([]*model.UserEntity, error) {
 	m.Called()
-	return []*UserEntity{MakeUserEntity(1)}, nil
+	return []*model.UserEntity{test.MakeUserEntity(1)}, nil
 }
 
-func (m *UserServiceMock) Update(id int, command *UpdateUserCommand) (*UserEntity, error) {
+func (m *UserServiceMock) Update(id int, command *model.UpdateUserCommand) (*model.UserEntity, error) {
 	m.Called(id, command)
-	return MakeUserEntity(1), nil
+	return test.MakeUserEntity(1), nil
 }
 
 func (m *UserServiceMock) Delete(id int) error {
@@ -120,23 +122,23 @@ func mockCreateAndUpdate(context *gin.Context) *gin.Context {
 func mockUserService(service *UserServiceMock) *UserServiceMock {
 	service.
 		On("FindAll").
-		Return([]*UserEntity{MakeUserEntity(1)})
+		Return([]*model.UserEntity{test.MakeUserEntity(1)})
 
 	service.
 		On("FindById", 1).
-		Return(MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	service.
 		On("Delete", 1).
-		Return(MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	service.
 		On("Create", mock.Anything).
-		Return(MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	service.
 		On("Update", 1, mock.Anything).
-		Return(MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	return service
 }

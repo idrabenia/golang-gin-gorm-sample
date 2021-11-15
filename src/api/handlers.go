@@ -1,15 +1,17 @@
-package main
+package api
 
 import (
 	"errors"
+	"example/hello/src/model"
+	"example/hello/src/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
 	"strconv"
 )
 
-func CreateUser(context *gin.Context, userService UserServiceType) {
-	user := User{}
+func CreateUser(context *gin.Context, userService services.UserServiceType) {
+	user := model.User{}
 
 	if err := context.ShouldBind(&user); err != nil {
 		log.Println(err)
@@ -27,7 +29,7 @@ func CreateUser(context *gin.Context, userService UserServiceType) {
 	}
 }
 
-func UpdateUser(context *gin.Context, userService UserServiceType) {
+func UpdateUser(context *gin.Context, userService services.UserServiceType) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -35,7 +37,7 @@ func UpdateUser(context *gin.Context, userService UserServiceType) {
 		return
 	}
 
-	command := UpdateUserCommand{}
+	command := model.UpdateUserCommand{}
 
 	if err := context.ShouldBind(&command); err != nil {
 		log.Println(err)
@@ -51,7 +53,7 @@ func UpdateUser(context *gin.Context, userService UserServiceType) {
 	}
 }
 
-func DeleteUser(context *gin.Context, userService UserServiceType) {
+func DeleteUser(context *gin.Context, userService services.UserServiceType) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -66,7 +68,7 @@ func DeleteUser(context *gin.Context, userService UserServiceType) {
 	}
 }
 
-func GetUser(context *gin.Context, userService UserServiceType) {
+func GetUser(context *gin.Context, userService services.UserServiceType) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -86,7 +88,7 @@ func GetUser(context *gin.Context, userService UserServiceType) {
 	}
 }
 
-func FindAllUsers(context *gin.Context, userService UserServiceType) {
+func FindAllUsers(context *gin.Context, userService services.UserServiceType) {
 	if users, err := userService.FindAll(); err == nil {
 		context.JSON(200, ToUserList(users))
 	} else {
@@ -111,9 +113,9 @@ func ParseId(context *gin.Context) (int, error) {
 	}
 }
 
-func Handlers(db GormDb, r *gin.Engine) {
+func Handlers(db model.GormDb, r *gin.Engine) {
 
-	userService := &UserService{Db: db}
+	userService := &services.UserService{Db: db}
 
 	r.GET("/user/:id", func(context *gin.Context) {
 		GetUser(context, userService)
