@@ -1,8 +1,9 @@
 package gorm
 
 import (
-	"example/hello/src/test/api"
-	mockdb "example/hello/src/test/model"
+	gorm2 "example/hello/src/inf/gorm"
+	"example/hello/src/test"
+	tstmdl "example/hello/src/test/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
@@ -10,8 +11,8 @@ import (
 )
 
 func TestFindById(t *testing.T) {
-	db := mockDb(new(mockdb.DbMock))
-	service := UserRepoImpl{Db: db}
+	db := mockDb(new(tstmdl.DbMock))
+	service := gorm2.UserRepoImpl{Db: db}
 
 	result, err := service.FindById(1)
 
@@ -20,9 +21,9 @@ func TestFindById(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	db := mockDb(new(mockdb.DbMock))
-	service := UserRepoImpl{Db: db}
-	entity := api.MakeUserEntity(1)
+	db := mockDb(new(tstmdl.DbMock))
+	service := gorm2.UserRepoImpl{Db: db}
+	entity := test.MakeUserEntity(1)
 
 	result, err := service.Create(entity)
 
@@ -31,8 +32,8 @@ func TestCreate(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	db := mockDb(new(mockdb.DbMock))
-	service := UserRepoImpl{Db: db}
+	db := mockDb(new(tstmdl.DbMock))
+	service := gorm2.UserRepoImpl{Db: db}
 
 	result, err := service.FindAll()
 
@@ -41,8 +42,8 @@ func TestFindAll(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	db := mockDb(new(mockdb.DbMock))
-	service := UserRepoImpl{Db: db}
+	db := mockDb(new(tstmdl.DbMock))
+	service := gorm2.UserRepoImpl{Db: db}
 
 	err := service.Delete(1)
 
@@ -51,9 +52,9 @@ func TestDelete(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	db := mockDb(new(mockdb.DbMock))
-	service := UserRepoImpl{Db: db}
-	entity := api.MakeUserEntity(1)
+	db := mockDb(new(tstmdl.DbMock))
+	service := gorm2.UserRepoImpl{Db: db}
+	entity := test.MakeUserEntity(1)
 
 	result, err := service.Update(entity)
 
@@ -61,7 +62,7 @@ func TestUpdate(t *testing.T) {
 	assert.Equal(t, err, nil)
 }
 
-func mockDb(dbMock *mockdb.DbMock) *mockdb.DbMock {
+func mockDb(dbMock *tstmdl.DbMock) *tstmdl.DbMock {
 	dbMock.
 		On("First", mock.Anything, mock.Anything).
 		Return(&gorm.DB{Error: nil})

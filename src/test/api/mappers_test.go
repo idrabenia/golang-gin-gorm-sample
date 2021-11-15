@@ -1,25 +1,26 @@
 package api
 
 import (
+	"example/hello/src/api"
 	"example/hello/src/model"
-	"example/hello/src/test/api"
+	"example/hello/src/test"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestToUserEntity(t *testing.T) {
-	user := api.MakeUser()
+	user := test.MakeUser()
 
-	result := ToUserEntity(user)
+	result := api.ToUserEntity(user)
 
 	assert.Equal(t, result.FirstName, "TestFirstName")
 	assert.Equal(t, result.LastName, "TestLastName")
 }
 
 func TestToUser(t *testing.T) {
-	user := api.MakeUserEntity(1)
+	user := test.MakeUserEntity(1)
 
-	result := ToUser(user)
+	result := api.ToUser(user)
 
 	assert.Equal(t, result.Id, 1)
 	assert.Equal(t, result.FirstName, "TestFirstName")
@@ -27,11 +28,11 @@ func TestToUser(t *testing.T) {
 }
 
 func TestToUserList(t *testing.T) {
-	firstUser := api.MakeUserEntity(1)
-	secondUser := api.MakeUserEntity(2)
+	firstUser := test.MakeUserEntity(1)
+	secondUser := test.MakeUserEntity(2)
 	users := []*model.UserEntity{firstUser, secondUser}
 
-	result := ToUserList(users)
+	result := api.ToUserList(users)
 
 	assert.Equal(t, len(result), 2)
 	assert.Equal(t, result[0].Id, 1)

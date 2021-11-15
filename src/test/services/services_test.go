@@ -2,7 +2,8 @@ package services
 
 import (
 	"example/hello/src/model"
-	"example/hello/src/test/api"
+	"example/hello/src/services"
+	"example/hello/src/test"
 	mockdb "example/hello/src/test/inf/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -11,7 +12,7 @@ import (
 
 func TestFindById(t *testing.T) {
 	repo := mockDb(new(mockdb.UserRepoMock))
-	service := UserServiceImpl{UserRepo: repo}
+	service := services.UserServiceImpl{UserRepo: repo}
 
 	result, err := service.FindById(1)
 
@@ -21,8 +22,8 @@ func TestFindById(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	repo := mockDb(new(mockdb.UserRepoMock))
-	service := UserServiceImpl{UserRepo: repo}
-	entity := api.MakeUserEntity(1)
+	service := services.UserServiceImpl{UserRepo: repo}
+	entity := test.MakeUserEntity(1)
 
 	result, err := service.Create(entity)
 
@@ -32,7 +33,7 @@ func TestCreate(t *testing.T) {
 
 func TestFindAll(t *testing.T) {
 	repo := mockDb(new(mockdb.UserRepoMock))
-	service := UserServiceImpl{UserRepo: repo}
+	service := services.UserServiceImpl{UserRepo: repo}
 
 	result, err := service.FindAll()
 
@@ -42,7 +43,7 @@ func TestFindAll(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	repo := mockDb(new(mockdb.UserRepoMock))
-	service := UserServiceImpl{UserRepo: repo}
+	service := services.UserServiceImpl{UserRepo: repo}
 
 	err := service.Delete(1)
 
@@ -52,7 +53,7 @@ func TestDelete(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	repo := mockDb(new(mockdb.UserRepoMock))
-	service := UserServiceImpl{UserRepo: repo}
+	service := services.UserServiceImpl{UserRepo: repo}
 	command := MakeUpdateCommand()
 
 	result, err := service.Update(1, command)
@@ -64,29 +65,29 @@ func TestUpdate(t *testing.T) {
 func mockDb(repoMock *mockdb.UserRepoMock) *mockdb.UserRepoMock {
 	repoMock.
 		On("FindAll").
-		Return([]*model.UserEntity{api.MakeUserEntity(1)})
+		Return([]*model.UserEntity{test.MakeUserEntity(1)})
 
 	repoMock.
 		On("FindById", 1).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	repoMock.
 		On("Delete", 1).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	repoMock.
 		On("Create", mock.Anything).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	repoMock.
 		On("Update", mock.Anything).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	return repoMock
 }
 
-func MakeUpdateCommand() *UpdateUserCommand {
-	return &UpdateUserCommand{
+func MakeUpdateCommand() *services.UpdateUserCommand {
+	return &services.UpdateUserCommand{
 		FirstName: "TestFirstName",
 		LastName:  "TestLastName",
 	}

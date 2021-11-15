@@ -2,8 +2,9 @@ package api
 
 import (
 	"bytes"
+	"example/hello/src/api"
 	"example/hello/src/model"
-	"example/hello/src/test/api"
+	"example/hello/src/test"
 	"example/hello/src/test/services"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,7 @@ func TestFindAllUsers(t *testing.T) {
 	context := makeContext()
 	service := mockUserService(new(services.UserServiceMock))
 
-	FindAllUsers(context, service)
+	api.FindAllUsers(context, service)
 
 	assert.Equal(t, context.Writer.Status(), 200)
 	service.AssertCalled(t, "FindAll")
@@ -29,7 +30,7 @@ func TestProcessFindById(t *testing.T) {
 	context := makeContext()
 	context.Params = mockParams("id", "1")
 
-	GetUser(context, service)
+	api.GetUser(context, service)
 
 	assert.Equal(t, context.Writer.Status(), 200)
 	service.AssertCalled(t, "FindById", 1)
@@ -39,7 +40,7 @@ func TestCreateUser(t *testing.T) {
 	service := mockUserService(new(services.UserServiceMock))
 	context := mockCreateAndUpdate(makeContext())
 
-	CreateUser(context, service)
+	api.CreateUser(context, service)
 
 	assert.Equal(t, context.Writer.Status(), 200)
 	service.AssertCalled(t, "Create", mock.Anything)
@@ -50,7 +51,7 @@ func TestUpdateUser(t *testing.T) {
 	context := mockCreateAndUpdate(makeContext())
 	context.Params = mockParams("id", "1")
 
-	UpdateUser(context, service)
+	api.UpdateUser(context, service)
 
 	assert.Equal(t, context.Writer.Status(), 200)
 	service.AssertCalled(t, "Update", 1, mock.Anything)
@@ -61,7 +62,7 @@ func TestDeleteById(t *testing.T) {
 	context := makeContext()
 	context.Params = mockParams("id", "1")
 
-	DeleteUser(context, service)
+	api.DeleteUser(context, service)
 
 	service.AssertCalled(t, "Delete", 1)
 }
@@ -94,23 +95,23 @@ func mockCreateAndUpdate(context *gin.Context) *gin.Context {
 func mockUserService(service *services.UserServiceMock) *services.UserServiceMock {
 	service.
 		On("FindAll").
-		Return([]*model.UserEntity{api.MakeUserEntity(1)})
+		Return([]*model.UserEntity{test.MakeUserEntity(1)})
 
 	service.
 		On("FindById", 1).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	service.
 		On("Delete", 1).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	service.
 		On("Create", mock.Anything).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	service.
 		On("Update", 1, mock.Anything).
-		Return(api.MakeUserEntity(1), nil)
+		Return(test.MakeUserEntity(1), nil)
 
 	return service
 }

@@ -1,27 +1,26 @@
 package api
 
 import (
-	"example/hello/src/api/dto"
 	"example/hello/src/model"
 )
 
-func ToUserEntity(user *dto.User) *model.UserEntity {
+func ToUserEntity(user *User) *model.UserEntity {
 	return &model.UserEntity{
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 	}
 }
 
-func ToUser(entity *model.UserEntity) *dto.User {
-	return &dto.User{
+func ToUser(entity *model.UserEntity) *User {
+	return &User{
 		Id:        int(entity.ID),
 		FirstName: entity.FirstName,
 		LastName:  entity.LastName,
 	}
 }
 
-func ToUserList(entities []*model.UserEntity) []*dto.User {
-	result := make([]*dto.User, 0)
+func ToUserList(entities []*model.UserEntity) []*User {
+	result := make([]*User, 0)
 
 	for _, entity := range entities {
 		result = append(result, ToUser(entity))
