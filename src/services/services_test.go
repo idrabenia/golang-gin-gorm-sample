@@ -2,49 +2,16 @@ package services
 
 import (
 	"example/hello/src/model"
-	"example/hello/src/test"
+	"example/hello/src/test/api"
+	mockdb "example/hello/src/test/inf/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"gorm.io/gorm"
 	"testing"
 )
 
-type DbMock struct {
-	mock.Mock
-}
-
-func (db *DbMock) Create(value interface{}) (tx *gorm.DB) {
-	db.Called(value)
-	return &gorm.DB{Error: nil}
-}
-
-func (db *DbMock) Updates(values interface{}) (tx *gorm.DB) {
-	db.Called(values)
-	return &gorm.DB{Error: nil}
-}
-
-func (db *DbMock) Delete(value interface{}, conds ...interface{}) (tx *gorm.DB) {
-	db.Called(value, conds)
-	return &gorm.DB{Error: nil}
-}
-
-func (db *DbMock) Find(dest interface{}, conds ...interface{}) (tx *gorm.DB) {
-	db.Called(dest, conds)
-	return &gorm.DB{Error: nil}
-}
-
-func (db *DbMock) First(dest interface{}, conds ...interface{}) (tx *gorm.DB) {
-	db.Called(dest, conds)
-
-	item := dest.(*model.UserEntity)
-	item.ID = 1
-
-	return &gorm.DB{Error: nil}
-}
-
 func TestFindById(t *testing.T) {
-	db := mockDb(new(DbMock))
-	service := UserService{Db: db}
+	repo := mockDb(new(mockdb.UserRepoMock))
+	service := UserServiceImpl{UserRepo: repo}
 
 	result, err := service.FindById(1)
 
@@ -53,9 +20,9 @@ func TestFindById(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	db := mockDb(new(DbMock))
-	service := UserService{Db: db}
-	entity := test.MakeUserEntity(1)
+	repo := mockDb(new(mockdb.UserRepoMock))
+	service := UserServiceImpl{UserRepo: repo}
+	entity := api.MakeUserEntity(1)
 
 	result, err := service.Create(entity)
 
@@ -64,28 +31,28 @@ func TestCreate(t *testing.T) {
 }
 
 func TestFindAll(t *testing.T) {
-	db := mockDb(new(DbMock))
-	service := UserService{Db: db}
+	repo := mockDb(new(mockdb.UserRepoMock))
+	service := UserServiceImpl{UserRepo: repo}
 
 	result, err := service.FindAll()
 
-	assert.Equal(t, len(result), 0)
+	assert.Equal(t, len(result), 1)
 	assert.Equal(t, err, nil)
 }
 
 func TestDelete(t *testing.T) {
-	db := mockDb(new(DbMock))
-	service := UserService{Db: db}
+	repo := mockDb(new(mockdb.UserRepoMock))
+	service := UserServiceImpl{UserRepo: repo}
 
 	err := service.Delete(1)
 
 	assert.Equal(t, err, nil)
-	db.AssertCalled(t, "Delete", mock.Anything, mock.Anything)
+	repo.AssertCalled(t, "Delete", mock.Anything, mock.Anything)
 }
 
 func TestUpdate(t *testing.T) {
-	db := mockDb(new(DbMock))
-	service := UserService{Db: db}
+	repo := mockDb(new(mockdb.UserRepoMock))
+	service := UserServiceImpl{UserRepo: repo}
 	command := MakeUpdateCommand()
 
 	result, err := service.Update(1, command)
@@ -94,32 +61,32 @@ func TestUpdate(t *testing.T) {
 	assert.Equal(t, err, nil)
 }
 
-func mockDb(dbMock *DbMock) *DbMock {
-	dbMock.
-		On("First", mock.Anything, mock.Anything).
-		Return(&gorm.DB{Error: nil})
+func mockDb(repoMock *mockdb.UserRepoMock) *mockdb.UserRepoMock {
+	repoMock.
+		On("FindAll").
+		Return([]*model.UserEntity{api.MakeUserEntity(1)})
 
-	dbMock.
+	repoMock.
+		On("FindById", 1).
+		Return(api.MakeUserEntity(1), nil)
+
+	repoMock.
+		On("Delete", 1).
+		Return(api.MakeUserEntity(1), nil)
+
+	repoMock.
 		On("Create", mock.Anything).
-		Return(&gorm.DB{Error: nil})
+		Return(api.MakeUserEntity(1), nil)
 
-	dbMock.
-		On("Find", mock.Anything, mock.Anything).
-		Return(&gorm.DB{Error: nil})
+	repoMock.
+		On("Update", mock.Anything).
+		Return(api.MakeUserEntity(1), nil)
 
-	dbMock.
-		On("Delete", mock.Anything, mock.Anything).
-		Return(&gorm.DB{Error: nil})
-
-	dbMock.
-		On("Updates", mock.Anything).
-		Return(&gorm.DB{Error: nil})
-
-	return dbMock
+	return repoMock
 }
 
-func MakeUpdateCommand() *model.UpdateUserCommand {
-	return &model.UpdateUserCommand{
+func MakeUpdateCommand() *UpdateUserCommand {
+	return &UpdateUserCommand{
 		FirstName: "TestFirstName",
 		LastName:  "TestLastName",
 	}

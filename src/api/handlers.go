@@ -2,7 +2,8 @@ package api
 
 import (
 	"errors"
-	"example/hello/src/model"
+	"example/hello/src/api/model"
+	infdb "example/hello/src/inf/gorm"
 	"example/hello/src/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -10,7 +11,7 @@ import (
 	"strconv"
 )
 
-func CreateUser(context *gin.Context, userService services.UserServiceType) {
+func CreateUser(context *gin.Context, userService services.UserService) {
 	user := model.User{}
 
 	if err := context.ShouldBind(&user); err != nil {
@@ -29,7 +30,7 @@ func CreateUser(context *gin.Context, userService services.UserServiceType) {
 	}
 }
 
-func UpdateUser(context *gin.Context, userService services.UserServiceType) {
+func UpdateUser(context *gin.Context, userService services.UserService) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -37,7 +38,7 @@ func UpdateUser(context *gin.Context, userService services.UserServiceType) {
 		return
 	}
 
-	command := model.UpdateUserCommand{}
+	command := services.UpdateUserCommand{}
 
 	if err := context.ShouldBind(&command); err != nil {
 		log.Println(err)
@@ -53,7 +54,7 @@ func UpdateUser(context *gin.Context, userService services.UserServiceType) {
 	}
 }
 
-func DeleteUser(context *gin.Context, userService services.UserServiceType) {
+func DeleteUser(context *gin.Context, userService services.UserService) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -68,7 +69,7 @@ func DeleteUser(context *gin.Context, userService services.UserServiceType) {
 	}
 }
 
-func GetUser(context *gin.Context, userService services.UserServiceType) {
+func GetUser(context *gin.Context, userService services.UserService) {
 	id, err := ParseId(context)
 
 	if err != nil {
@@ -88,7 +89,7 @@ func GetUser(context *gin.Context, userService services.UserServiceType) {
 	}
 }
 
-func FindAllUsers(context *gin.Context, userService services.UserServiceType) {
+func FindAllUsers(context *gin.Context, userService services.UserService) {
 	if users, err := userService.FindAll(); err == nil {
 		context.JSON(200, ToUserList(users))
 	} else {
@@ -113,9 +114,10 @@ func ParseId(context *gin.Context) (int, error) {
 	}
 }
 
-func Handlers(db model.GormDb, r *gin.Engine) {
+func Handlers(db infdb.DbGorm, r *gin.Engine) {
 
-	userService := &services.UserService{Db: db}
+	userRepo := &infdb.UserRepoImpl{Db: db}
+	userService := &services.UserServiceImpl{UserRepo: userRepo}
 
 	r.GET("/user/:id", func(context *gin.Context) {
 		GetUser(context, userService)

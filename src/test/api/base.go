@@ -1,12 +1,13 @@
-package test
+package api
 
 import (
+	model2 "example/hello/src/api/model"
 	"example/hello/src/model"
 	"gorm.io/gorm"
 )
 
-func MakeUser() *model.User {
-	return &model.User{
+func MakeUser() *model2.User {
+	return &model2.User{
 		Id:        1,
 		FirstName: "TestFirstName",
 		LastName:  "TestLastName",
