@@ -2,7 +2,7 @@ package api
 
 import (
 	"errors"
-	"example/hello/src/api/model"
+	"example/hello/src/api/dto"
 	infdb "example/hello/src/inf/gorm"
 	"example/hello/src/services"
 	"github.com/gin-gonic/gin"
@@ -12,7 +12,7 @@ import (
 )
 
 func CreateUser(context *gin.Context, userService services.UserService) {
-	user := model.User{}
+	user := dto.User{}
 
 	if err := context.ShouldBind(&user); err != nil {
 		log.Println(err)
