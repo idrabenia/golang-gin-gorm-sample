@@ -18,7 +18,7 @@ var set = wire.NewSet(
 	services.ServiceSet,
 	infgorm.RepoSet,
 	provideDb,
-	provideEngine,
+	gin.Default,
 )
 
 type App struct {
@@ -41,8 +41,4 @@ func provideDb() *gorm.DB {
 	db.AutoMigrate(&model.UserEntity{})
 
 	return db
-}
-
-func provideEngine() *gin.Engine {
-	return gin.Default()
 }
