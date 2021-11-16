@@ -8,3 +8,13 @@ Used Libraries and Frameworks:
 - [Wire](https://github.com/google/wire)
 
 To run on Windows OS need to install [GCC](https://jmeubank.github.io/tdm-gcc/download/)
+
+To run application you need:
+```shell
+go get github.com/google/wire/cmd/wire
+go mod download
+
+cd ./src
+go generate wire.go
+go run .
+```
