@@ -9,5 +9,5 @@ func main() {
 
 	api.Handlers(app.Engine, app.UserService)
 
-	app.Engine.Run(":8080")
+	app.Engine.Run(":" + app.Config.Port)
 }

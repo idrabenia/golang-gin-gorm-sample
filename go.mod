@@ -3,8 +3,10 @@ module example/hello
 go 1.17
 
 require (
+	github.com/caarlos0/env/v6 v6.8.0
 	github.com/gin-gonic/gin v1.7.4
 	github.com/google/wire v0.5.0
+	github.com/joho/godotenv v1.4.0
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/sqlite v1.2.4
 	gorm.io/gorm v1.22.3
@@ -31,6 +33,7 @@ require (
 	golang.org/x/crypto v0.0.0-20211115234514-b4de73f9ece8 // indirect
 	golang.org/x/sys v0.0.0-20211116061358-0a5406a5449c // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect

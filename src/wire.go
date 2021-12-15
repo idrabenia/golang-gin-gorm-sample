@@ -19,11 +19,13 @@ var set = wire.NewSet(
 	infgorm.RepoSet,
 	provideDb,
 	gin.Default,
+	ParseConfig,
 )
 
 type App struct {
 	Engine      *gin.Engine
 	UserService services.UserService
+	Config      *Config
 }
 
 func InitApp() *App {
@@ -31,8 +33,8 @@ func InitApp() *App {
 	return &App{}
 }
 
-func provideDb() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+func provideDb(config *Config) *gorm.DB {
+	db, err := gorm.Open(sqlite.Open(config.DbUrl), &gorm.Config{})
 
 	if err != nil {
 		panic("failed to connect database")
